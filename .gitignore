@@ -1,0 +1,20 @@
+# --- Data & Artifacts (严禁上传) ---
+data/
+outputs/
+logs/
+*.pth
+*.ckpt
+*.csv
+*.parquet
+*.pkl
+
+# --- System & Python Cache ---
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+.env
+
+# --- IDE Settings ---
+.vscode/
+.idea/
