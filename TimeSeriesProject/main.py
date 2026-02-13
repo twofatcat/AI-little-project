@@ -16,6 +16,7 @@ import pandas as pd
 import config
 from cleaning import MarketTimeSpec, canonicalize_hourly_bars, canonicalize_hourly_bars_v2
 from clean_pipeline import build_gold_clean_bars
+from date_compat import detect_islamic_like_calendar_env
 from corp_actions import (
     compute_cn_daily_adj_factors_from_dual_intraday,
     fetch_us_daily_adj_factors,
@@ -75,11 +76,12 @@ def run_market(conn: sqlite3.Connection, market: str, theme: str = "ai_robotics"
         delay = config.FETCH_DELAY_SECONDS_US
         spec = MarketTimeSpec(exchange_tz=config.TZ_US, input_tz="UTC", timestamp_kind="bar_start")
     else:
-        source = CNAKShareSource(adjust="qfq")
+        # CN: 先用新浪 (Sina)，东财 (Eastmoney) 作备用
+        source = CNAKShareSinaFallbackSource(adjust="qfq")
         delay = config.FETCH_DELAY_SECONDS_CN
         spec = MarketTimeSpec(exchange_tz=config.TZ_CN, input_tz=config.TZ_CN, timestamp_kind="bar_end")
-        fallback = CNAKShareSinaFallbackSource(adjust="qfq") if config.CN_ENABLE_FALLBACK_SINA else None
-        source_unadj = CNAKShareSource(adjust="") if config.CN_COMPUTE_ADJ_FACTORS_DUAL_FETCH else None
+        fallback = CNAKShareSource(adjust="qfq") if config.CN_ENABLE_FALLBACK_SINA else None
+        source_unadj = CNAKShareSinaFallbackSource(adjust="") if config.CN_COMPUTE_ADJ_FACTORS_DUAL_FETCH else None
 
     end_dt_utc = datetime.now(timezone.utc)
     free_start_utc = _free_start_dt(market)
@@ -222,6 +224,14 @@ def main() -> None:
     os.makedirs(config.DATA_DIR, exist_ok=True)
     conn = sqlite3.connect(config.DB_PATH)
     try:
+        if detect_islamic_like_calendar_env():
+            logger.warning(
+                "Detected localized calendar/date environment (possible Hijri/Arabic digits); "
+                "API date arguments will be normalized to ASCII Gregorian."
+            )
+        else:
+            logger.info("Date environment check: Gregorian-compatible, no normalization needed.")
+
         parser = argparse.ArgumentParser()
         parser.add_argument("--market", choices=["us", "cn", "all"], default="all")
         args, _ = parser.parse_known_args()

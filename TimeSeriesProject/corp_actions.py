@@ -20,6 +20,8 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
+from date_compat import safe_date_ymd
+
 
 def _now_utc_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -45,8 +47,8 @@ def fetch_us_daily_adj_factors(symbol: str, start_date: date, end_date: date) ->
     if start_date > end_date:
         return pd.DataFrame()
 
-    start_s = start_date.isoformat()
-    end_s = (end_date + timedelta(days=1)).isoformat()  # yfinance end is exclusive
+    start_s, _ = safe_date_ymd(start_date)
+    end_s, _ = safe_date_ymd(end_date + timedelta(days=1))  # yfinance end is exclusive
     try:
         raw = yf.download(
             symbol,

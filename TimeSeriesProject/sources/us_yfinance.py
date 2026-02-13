@@ -1,15 +1,18 @@
 """
 US market: yfinance 1h intraday. Max 60 days history.
 """
+import logging
 from datetime import datetime, timedelta
 from typing import Optional
 
 import pandas as pd
 
 from .base import BaseHourlySource
+from date_compat import safe_date_ymd
 
 # yfinance intraday is limited to last 60 days
 MAX_DAYS_US = 60
+logger = logging.getLogger(__name__)
 
 
 def _normalize_us(df: pd.DataFrame, symbol: str) -> Optional[pd.DataFrame]:
@@ -52,6 +55,7 @@ class USYFinanceSource(BaseHourlySource):
 
     def __init__(self) -> None:
         self.source_name = "yfinance"
+        self._date_compat_logged = False
 
     def fetch_hourly(
         self,
@@ -76,8 +80,12 @@ class USYFinanceSource(BaseHourlySource):
         if start_dt >= end_dt:
             return None
         # yfinance `end` is exclusive; add 1 day to include the last trading day
-        start_s = start_dt.strftime("%Y-%m-%d")
-        end_s = (end_dt + timedelta(days=1)).strftime("%Y-%m-%d")
+        start_s, start_norm = safe_date_ymd(start_dt)
+        end_s, end_norm = safe_date_ymd(end_dt + timedelta(days=1))
+        if (start_norm or end_norm) and not self._date_compat_logged:
+            # One-time hint for systems with localized calendar/digits.
+            logger.warning("date_compat: normalized localized date format for yfinance requests")
+            self._date_compat_logged = True
         try:
             data = yf.download(
                 symbol,

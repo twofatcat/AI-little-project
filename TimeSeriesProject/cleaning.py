@@ -43,6 +43,15 @@ def iso_z(dt_utc: pd.Timestamp) -> str:
     return dt_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _to_unix_seconds(ts: pd.Series) -> pd.Series:
+    """
+    Convert timezone-aware datetime Series to Unix seconds robustly.
+    Works across datetime64 units (ns/us/ms/s), unlike raw int64 // 1e9.
+    """
+    epoch = pd.Timestamp("1970-01-01T00:00:00Z")
+    return ((ts - epoch) / pd.Timedelta(seconds=1)).astype("int64")
+
+
 def canonicalize_hourly_bars(
     df: pd.DataFrame,
     *,
@@ -95,8 +104,7 @@ def canonicalize_hourly_bars(
     dt_end_local = dt_end_utc.dt.tz_convert(ZoneInfo(spec.exchange_tz))
 
     # Primary key: ts_end_utc (seconds since epoch)
-    # pandas datetime64[ns].astype("int64") is nanoseconds; divide by 10**9 for seconds
-    ts_end_utc = (dt_end_utc.astype("int64") // 10**9).astype("int64")
+    ts_end_utc = _to_unix_seconds(dt_end_utc)
 
     # Ensure numeric columns
     for c in ["open", "high", "low", "close", "volume", "amount", "adj_close", "dividend"]:
@@ -245,8 +253,8 @@ def canonicalize_hourly_bars_v2(
     end_utc = (dt_max + pd.Timedelta(days=3)).ceil("D")
     buckets = generate_intraday_buckets(market=market, start_utc=start_utc, end_utc=end_utc, interval=interval)
 
-    # Compute integer key in seconds
-    ts_key_utc = (dt_key_utc.astype("int64") // 10**9).astype("int64")
+    # Compute integer key in seconds (robust to datetime precision unit)
+    ts_key_utc = _to_unix_seconds(dt_key_utc)
     out["_ts_key_utc"] = ts_key_utc
 
     # Align to buckets by ts_start_utc (bar_start) or ts_end_utc (bar_end)

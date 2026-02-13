@@ -74,6 +74,14 @@ def _iso_z(ts_utc: pd.Timestamp) -> str:
     return ts_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _series_to_unix_seconds(ts: pd.Series) -> pd.Series:
+    """
+    Convert UTC datetime Series to Unix seconds robustly across datetime units.
+    """
+    epoch = pd.Timestamp("1970-01-01T00:00:00Z")
+    return ((ts - epoch) / pd.Timedelta(seconds=1)).astype("int64")
+
+
 @lru_cache(maxsize=8)
 def _get_calendar(calendar_name: str):
     try:
@@ -212,8 +220,8 @@ def generate_intraday_buckets(
         return pd.DataFrame()
 
     out = pd.DataFrame(rows)
-    out["ts_start_utc"] = (out["dt_start_utc"].astype("int64") // 10**9).astype("int64")
-    out["ts_end_utc"] = (out["dt_end_utc"].astype("int64") // 10**9).astype("int64")
+    out["ts_start_utc"] = _series_to_unix_seconds(out["dt_start_utc"])
+    out["ts_end_utc"] = _series_to_unix_seconds(out["dt_end_utc"])
     out["dt_start_utc"] = out["dt_start_utc"].map(_iso_z)
     out["dt_end_utc"] = out["dt_end_utc"].map(_iso_z)
     out = out.sort_values(["ts_end_utc", "ts_start_utc"]).drop_duplicates(subset=["ts_start_utc", "ts_end_utc"])
@@ -296,8 +304,8 @@ def _generate_intraday_buckets_fallback(
         return pd.DataFrame()
 
     out = pd.DataFrame(rows)
-    out["ts_start_utc"] = (out["dt_start_utc"].astype("int64") // 10**9).astype("int64")
-    out["ts_end_utc"] = (out["dt_end_utc"].astype("int64") // 10**9).astype("int64")
+    out["ts_start_utc"] = _series_to_unix_seconds(out["dt_start_utc"])
+    out["ts_end_utc"] = _series_to_unix_seconds(out["dt_end_utc"])
     out["dt_start_utc"] = out["dt_start_utc"].map(_iso_z)
     out["dt_end_utc"] = out["dt_end_utc"].map(_iso_z)
     out = out.sort_values(["ts_end_utc", "ts_start_utc"]).drop_duplicates(subset=["ts_start_utc", "ts_end_utc"])

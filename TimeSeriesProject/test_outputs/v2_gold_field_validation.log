@@ -1,0 +1,21 @@
+2026-02-13 16:43:30,744 [INFO] Starting v2/gold field validation with synthetic data
+2026-02-13 16:43:30,745 [INFO] Synthetic raw rows: 9
+2026-02-13 16:43:31,108 [INFO] v2 rows: 9
+2026-02-13 16:43:31,142 [INFO] gold rows: 14
+2026-02-13 16:43:31,143 [INFO] [PASS] v2 required fields present | missing=[]
+2026-02-13 16:43:31,143 [INFO] [PASS] gold required fields present | missing=[]
+2026-02-13 16:43:31,143 [INFO] [PASS] v2 has off-calendar flag | count=1
+2026-02-13 16:43:31,144 [INFO] [PASS] v2 has null-price flag | count=1
+2026-02-13 16:43:31,144 [INFO] [PASS] v2 has nonpositive-price flag | count=1
+2026-02-13 16:43:31,144 [INFO] [PASS] v2 has ohlc-inconsistent flag | count=2
+2026-02-13 16:43:31,144 [INFO] [PASS] v2 has volume-negative flag | count=1
+2026-02-13 16:43:31,145 [INFO] [PASS] gold has missing placeholders | count=6
+2026-02-13 16:43:31,146 [INFO] [PASS] gold missing_reason vendor_gap present | values=['vendor_gap']
+2026-02-13 16:43:31,146 [INFO] [PASS] gold has suspected_halt | count=1
+2026-02-13 16:43:31,146 [INFO] [PASS] gold has is_no_trade | count=1
+2026-02-13 16:43:31,146 [INFO] [PASS] gold has range anomaly flag | count=2
+2026-02-13 16:43:31,147 [INFO] [PASS] gold has jump anomaly flag | count=1
+2026-02-13 16:43:31,147 [INFO] [PASS] gold has corp-action flag | count=7
+2026-02-13 16:43:31,147 [INFO] [PASS] gold masks are binary | checked feature_mask/label_mask_1/4/7
+2026-02-13 16:43:31,148 [INFO] Finished checks: total=15 pass=15 fail=0
+2026-02-13 16:43:31,148 [INFO] Report written: /Users/caoy0e/Stock/AI-little-project/TimeSeriesProject/test_outputs/v2_gold_field_validation_report.md

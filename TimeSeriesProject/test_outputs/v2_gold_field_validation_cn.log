@@ -1,0 +1,21 @@
+2026-02-13 17:00:41,406 [INFO] Starting CN v2/gold field validation with synthetic data
+2026-02-13 17:00:41,408 [INFO] Synthetic CN raw rows: 8
+2026-02-13 17:00:41,711 [INFO] v2 rows: 8
+2026-02-13 17:00:41,738 [INFO] gold rows: 8
+2026-02-13 17:00:41,738 [INFO] [PASS] v2 required fields present | missing=[]
+2026-02-13 17:00:41,738 [INFO] [PASS] gold required fields present | missing=[]
+2026-02-13 17:00:41,739 [INFO] [PASS] v2 has off-calendar flag | count=1
+2026-02-13 17:00:41,739 [INFO] [PASS] v2 has null-price flag | count=1
+2026-02-13 17:00:41,739 [INFO] [PASS] v2 has nonpositive-price flag | count=1
+2026-02-13 17:00:41,740 [INFO] [PASS] v2 has ohlc-inconsistent flag | count=2
+2026-02-13 17:00:41,740 [INFO] [PASS] v2 has volume-negative flag | count=1
+2026-02-13 17:00:41,740 [INFO] [PASS] gold has missing placeholders | count=1
+2026-02-13 17:00:41,741 [INFO] [PASS] gold missing_reason vendor_gap present | values=['vendor_gap']
+2026-02-13 17:00:41,741 [INFO] [PASS] gold has suspected_halt | count=1
+2026-02-13 17:00:41,741 [INFO] [PASS] gold has is_no_trade | count=1
+2026-02-13 17:00:41,741 [INFO] [PASS] gold has range anomaly flag | count=1
+2026-02-13 17:00:41,742 [INFO] [PASS] gold has corp-action flag | count=4
+2026-02-13 17:00:41,742 [INFO] [PASS] gold masks are binary | checked feature_mask/label_mask_1/4/7
+2026-02-13 17:00:41,743 [INFO] [PASS] CN lunch break buckets respected | expect end times include 10:30/11:30/14:00/15:00
+2026-02-13 17:00:41,743 [INFO] Finished checks: total=15 pass=15 fail=0
+2026-02-13 17:00:41,743 [INFO] Report written: /Users/caoy0e/Stock/AI-little-project/TimeSeriesProject/test_outputs/v2_gold_field_validation_cn_report.md

@@ -8,6 +8,7 @@ import pandas as pd
 
 from .base import BaseHourlySource
 from zoneinfo import ZoneInfo
+from date_compat import safe_datetime_ymd_hms
 
 # 东财分钟数据约 3 个月
 MAX_DAYS_CN = 90
@@ -74,8 +75,8 @@ class CNAKShareSource(BaseHourlySource):
             end_dt = now
         if start_dt >= end_dt:
             return None
-        start_s = start_dt.strftime("%Y-%m-%d %H:%M:%S")
-        end_s = end_dt.strftime("%Y-%m-%d %H:%M:%S")
+        start_s, _ = safe_datetime_ymd_hms(start_dt)
+        end_s, _ = safe_datetime_ymd_hms(end_dt)
         try:
             import akshare as ak
             data = ak.stock_zh_a_hist_min_em(
